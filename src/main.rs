@@ -1,5 +1,5 @@
-use ripminigrep::run;
-use ripminigrep::Config;
+use minigrep::run;
+use minigrep::Config;
 use structopt::StructOpt;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let opt = Config::from_args();
