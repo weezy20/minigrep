@@ -1,4 +1,5 @@
 use colored::*;
+use std::io::{BufRead, BufReader};
 use std::{fs, path::PathBuf};
 use structopt::StructOpt;
 
@@ -18,15 +19,25 @@ pub struct Config {
 }
 
 pub fn run(opt: &Config) -> Result<(), Box<dyn std::error::Error>> {
-    let file_contents = fs::read_to_string(&opt.file)?;
-    match search(opt, &file_contents) {
-        Some(result) => {
-            for res in result {
-                println!("{}", res.bold());
+    // let file_contents = fs::read_to_string(&opt.file)?;
+    // the above is not suitable for reading extremely large files
+    let file = fs::File::open(&opt.file)?;
+    let mut file_contents = BufReader::new(file);
+    let mut buf = String::new();
+
+    while file_contents.read_line(&mut buf).unwrap() > 0 {
+        match search(opt, &buf) {
+            Some(result) => {
+                for res in result {
+                    println!("{}", res.bold());
+                }
             }
+            None => continue,
         }
-        None => println!("Match not found"),
+       
+        buf.clear();
     }
+
     Ok(())
 }
 
